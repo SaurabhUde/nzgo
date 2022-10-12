@@ -264,7 +264,7 @@ const (
 	PG_PROTOCOL_5
 )
 
-//Client Type
+// Client Type
 const (
 	NPSCLIENT_TYPE_GOLANG = 12
 )
@@ -3343,7 +3343,8 @@ func (cn *conn) Conn_send_database(o values) (bool, error) {
 	return false, nil
 }
 
-/*Cases which will fail:
+/*
+Cases which will fail:
 Client-> Preferred secured; Server-> Only Unsecured
 Client-> Preferred Unsecured; Server-> Only Secured
 All other cases of client and server combination will be taken care of.
@@ -3392,13 +3393,17 @@ func (cn *conn) Conn_secure_session() (bool, error) {
 			return false, err
 		}
 		if information == HSV2_SSL_CONNECT {
-			cn.c, err = upgrade(cn.c) //It updates connection with SSL
-			if err == nil {
-				elog.Debugf(chopPath(funName()), "Secured Connect Success")
-				information = 0 //if upgrade success come out of the loop
+			if upgrade != nil {
+				cn.c, err = upgrade(cn.c) //It updates connection with SSL
+				if err == nil {
+					elog.Debugf(chopPath(funName()), "Secured Connect Success")
+					information = 0 //if upgrade success come out of the loop
 
+				} else {
+					elog.Debugf(chopPath(funName()), err.Error())
+				}
 			} else {
-				elog.Debugf(chopPath(funName()), err.Error())
+				return false, elog.Fatalf(chopPath(funName()), "ERROR_CONN_FAIL")
 			}
 		}
 
@@ -4045,10 +4050,10 @@ func (rs *rows) NextResultSet() error {
 // QuoteIdentifier quotes an "identifier" (e.g. a table or a column name) to be
 // used as part of an SQL statement.  For example:
 //
-//    tblname := "my_table"
-//    data := "my_data"
-//    quoted := pq.QuoteIdentifier(tblname)
-//    err := db.Exec(fmt.Sprintf("INSERT INTO %s VALUES ($1)", quoted), data)
+//	tblname := "my_table"
+//	data := "my_data"
+//	quoted := pq.QuoteIdentifier(tblname)
+//	err := db.Exec(fmt.Sprintf("INSERT INTO %s VALUES ($1)", quoted), data)
 //
 // Any double quotes in name will be escaped.  The quoted identifier will be
 // case sensitive when used in a query.  If the input string contains a zero
